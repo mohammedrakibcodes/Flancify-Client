@@ -2,10 +2,14 @@
 @import "@heroui/styles";
 
 :root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
+  --primary: #111827;
+  --primary-hover: #1f2937;
+
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
 
   --background: #ffffff;
+  --surface: #f9fafb;
 
   --text: #111827;
   --text-muted: #6b7280;
