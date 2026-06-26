@@ -60,41 +60,6 @@ export default function Hero() {
             <ArrowRight size={18} />
           </Link>
         </div>
-
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-8 lg:gap-12">
-          <div className="flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur-md">
-            <div className="rounded-full bg-green-500/20 p-3">
-              <Users className="h-6 w-6 text-green-400" />
-            </div>
-
-            <div>
-              <h3 className="text-2xl font-bold text-white">10K+</h3>
-              <p className="text-sm text-gray-300">Active Users</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur-md">
-            <div className="rounded-full bg-green-500/20 p-3">
-              <ClipboardCheck className="h-6 w-6 text-green-400" />
-            </div>
-
-            <div>
-              <h3 className="text-2xl font-bold text-white">5K+</h3>
-              <p className="text-sm text-gray-300">Tasks Completed</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur-md">
-            <div className="rounded-full bg-green-500/20 p-3">
-              <Star className="h-6 w-6 fill-green-400 text-green-400" />
-            </div>
-
-            <div>
-              <h3 className="text-2xl font-bold text-white">4.9★</h3>
-              <p className="text-sm text-gray-300">Average Rating</p>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
