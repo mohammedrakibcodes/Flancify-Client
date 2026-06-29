@@ -2,16 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
 import { loginSchema } from "@/validations/loginSchema";
-
 import axiosInstance from "@/services/axiosInstance";
 
 export default function LoginForm() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -36,7 +37,7 @@ export default function LoginForm() {
           onSuccess: async () => {
             try {
               const { data: userData } = await axiosInstance.get(
-                `/users/email`,
+                "/users/email",
                 {
                   params: {
                     email: values.email,
@@ -46,22 +47,39 @@ export default function LoginForm() {
 
               const user = userData.result;
 
-              await axiosInstance.post(
-                "/auth/jwt",
-                {
-                  email: user.email,
-                  role: user.role,
-                },
-                {
-                  withCredentials: true,
-                },
-              );
+              await axiosInstance.post("/auth/jwt", {
+                email: user.email,
+                role: user.role,
+              });
+
+              await queryClient.invalidateQueries({
+                queryKey: ["current-user"],
+              });
 
               toast.success("Login successful.");
 
-              router.push("/dashboard");
-            } catch {
-              toast.error("Failed to create session.");
+              switch (user.role) {
+                case "client":
+                  router.replace("/client-dashboard");
+                  break;
+
+                case "freelancer":
+                  router.replace("/freelancer-dashboard");
+                  break;
+
+                case "admin":
+                  router.replace("/admin-dashboard");
+                  break;
+
+                default:
+                  router.replace("/");
+              }
+
+              router.refresh();
+            } catch (error) {
+              console.error(error);
+
+              toast.error("Failed to create user session.");
             }
           },
 
@@ -70,7 +88,9 @@ export default function LoginForm() {
           },
         },
       );
-    } catch {
+    } catch (error) {
+      console.error(error);
+
       toast.error("Something went wrong. Please try again.");
     }
   };

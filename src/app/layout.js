@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import QueryProvider from "@/providers/QueryProvider";
+import UserProvider from "@/providers/UserProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -17,13 +18,15 @@ export default function RootLayout({ children }) {
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen flex flex-col">
         <QueryProvider>
-          <Toaster position="top-right" richColors closeButton />
+          <UserProvider>
+            <Toaster position="top-right" richColors closeButton />
 
-          <Navbar />
+            <Navbar />
 
-          <main className="flex-1">{children}</main>
+            <main className="flex-1">{children}</main>
 
-          <Footer />
+            <Footer />
+          </UserProvider>
         </QueryProvider>
       </body>
     </html>

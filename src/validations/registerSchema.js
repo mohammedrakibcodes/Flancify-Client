@@ -31,7 +31,7 @@ export const registerSchema = z
 
     bio: z.string().optional(),
 
-    hourlyRate: z.union([z.number(), z.nan()]).optional(),
+    hourlyRate: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPassword) {
@@ -42,33 +42,31 @@ export const registerSchema = z
       });
     }
 
-    if (data.role === "freelancer") {
-      if (!data.skills?.trim()) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["skills"],
-          message: "Skills are required.",
-        });
-      }
+    if (data.role !== "freelancer") return;
 
-      if (!data.bio?.trim()) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["bio"],
-          message: "Bio is required.",
-        });
-      }
+    if (!data.skills?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["skills"],
+        message: "Skills are required.",
+      });
+    }
 
-      if (
-        data.hourlyRate === undefined ||
-        Number.isNaN(data.hourlyRate) ||
-        data.hourlyRate <= 0
-      ) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["hourlyRate"],
-          message: "Hourly rate must be greater than 0.",
-        });
-      }
+    if (!data.bio?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["bio"],
+        message: "Bio is required.",
+      });
+    }
+
+    const hourlyRate = Number(data.hourlyRate);
+
+    if (Number.isNaN(hourlyRate) || hourlyRate <= 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["hourlyRate"],
+        message: "Hourly rate must be greater than 0.",
+      });
     }
   });
