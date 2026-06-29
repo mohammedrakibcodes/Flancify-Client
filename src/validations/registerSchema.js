@@ -26,8 +26,49 @@ export const registerSchema = z
       ),
 
     confirmPassword: z.string().min(1, "Please confirm your password."),
+
+    skills: z.string().optional(),
+
+    bio: z.string().optional(),
+
+    hourlyRate: z.union([z.number(), z.nan()]).optional(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match.",
-    path: ["confirmPassword"],
+  .superRefine((data, ctx) => {
+    if (data.password !== data.confirmPassword) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["confirmPassword"],
+        message: "Passwords do not match.",
+      });
+    }
+
+    if (data.role === "freelancer") {
+      if (!data.skills?.trim()) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["skills"],
+          message: "Skills are required.",
+        });
+      }
+
+      if (!data.bio?.trim()) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["bio"],
+          message: "Bio is required.",
+        });
+      }
+
+      if (
+        data.hourlyRate === undefined ||
+        Number.isNaN(data.hourlyRate) ||
+        data.hourlyRate <= 0
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["hourlyRate"],
+          message: "Hourly rate must be greater than 0.",
+        });
+      }
+    }
   });

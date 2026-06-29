@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { loginSchema } from "@/validations/loginSchema";
 
+import axiosInstance from "@/services/axiosInstance";
+
 export default function LoginForm() {
   const router = useRouter();
 
@@ -29,12 +31,38 @@ export default function LoginForm() {
         {
           email: values.email,
           password: values.password,
-          callbackURL: "/dashboard",
         },
         {
-          onSuccess: () => {
-            toast.success("Login successful.");
-            router.push("/dashboard");
+          onSuccess: async () => {
+            try {
+              const { data: userData } = await axiosInstance.get(
+                `/users/email`,
+                {
+                  params: {
+                    email: values.email,
+                  },
+                },
+              );
+
+              const user = userData.result;
+
+              await axiosInstance.post(
+                "/auth/jwt",
+                {
+                  email: user.email,
+                  role: user.role,
+                },
+                {
+                  withCredentials: true,
+                },
+              );
+
+              toast.success("Login successful.");
+
+              router.push("/dashboard");
+            } catch {
+              toast.error("Failed to create session.");
+            }
           },
 
           onError: ({ error }) => {
@@ -42,7 +70,7 @@ export default function LoginForm() {
           },
         },
       );
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong. Please try again.");
     }
   };

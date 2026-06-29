@@ -7,14 +7,19 @@ import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
 import { registerSchema } from "@/validations/registerSchema";
+import { createUser } from "@/services/userApi";
+
+import BasicFields from "./BasicFields";
+import FreelancerFields from "./FreelancerFields";
 
 export default function RegisterForm() {
   const router = useRouter();
 
   const {
     register,
+    watch,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -23,8 +28,13 @@ export default function RegisterForm() {
       password: "",
       confirmPassword: "",
       role: "client",
+      skills: "",
+      bio: "",
+      hourlyRate: "",
     },
   });
+
+  const role = watch("role");
 
   const onSubmit = async (values) => {
     try {
@@ -36,9 +46,34 @@ export default function RegisterForm() {
           callbackURL: "/",
         },
         {
-          onSuccess: () => {
-            toast.success("Account created successfully.");
-            router.push("/");
+          onSuccess: async () => {
+            try {
+              await createUser({
+                name: values.name,
+                email: values.email,
+                role: values.role,
+                image: "",
+
+                skills:
+                  values.role === "freelancer"
+                    ? values.skills
+                        .split(",")
+                        .map((item) => item.trim())
+                        .filter(Boolean)
+                    : [],
+
+                bio: values.role === "freelancer" ? values.bio : "",
+
+                hourlyRate:
+                  values.role === "freelancer" ? Number(values.hourlyRate) : 0,
+              });
+
+              toast.success("Account created successfully.");
+
+              router.replace("/");
+            } catch {
+              toast.error("Account created but profile creation failed.");
+            }
           },
 
           onError: ({ error }) => {
@@ -46,8 +81,8 @@ export default function RegisterForm() {
           },
         },
       );
-    } catch (error) {
-      toast.error("Something went wrong. Please try again.");
+    } catch {
+      toast.error("Something went wrong.");
     }
   };
 
@@ -61,45 +96,23 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-5">
-      <input
-        type="text"
-        placeholder="Full Name"
-        autoComplete="name"
-        {...register("name")}
-        className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-green-600"
-      />
+      <BasicFields register={register} />
 
-      <input
-        type="email"
-        placeholder="Email"
-        autoComplete="email"
-        {...register("email")}
-        className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-green-600"
-      />
+      <div>
+        <label className="mb-2 block text-sm font-medium text-gray-700">
+          Account Type
+        </label>
 
-      <select
-        {...register("role")}
-        className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-green-600"
-      >
-        <option value="client">Client</option>
-        <option value="freelancer">Freelancer</option>
-      </select>
+        <select
+          {...register("role")}
+          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition focus:border-green-600"
+        >
+          <option value="client">Client</option>
+          <option value="freelancer">Freelancer</option>
+        </select>
+      </div>
 
-      <input
-        type="password"
-        placeholder="Password"
-        autoComplete="new-password"
-        {...register("password")}
-        className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-green-600"
-      />
-
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        autoComplete="new-password"
-        {...register("confirmPassword")}
-        className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-green-600"
-      />
+      {role === "freelancer" && <FreelancerFields register={register} />}
 
       <button
         type="submit"
