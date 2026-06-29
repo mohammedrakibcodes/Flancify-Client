@@ -12,5 +12,6 @@ export default function useTasks({ search = "", category = "all", page = 1 }) {
         category,
         page,
       }),
+    placeholderData: (previousData) => previousData,
   });
 }
