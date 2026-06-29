@@ -4,9 +4,12 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import clientPromise from "./mongodb";
 
 const client = await clientPromise;
+const db = client.db();
 
 export const auth = betterAuth({
-  database: mongodbAdapter(client),
+  database: mongodbAdapter(db, {
+    client,
+  }),
 
   secret: process.env.BETTER_AUTH_SECRET,
 
