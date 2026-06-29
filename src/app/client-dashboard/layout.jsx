@@ -5,32 +5,40 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
-import { logoutUser } from "@/services/authApi";
+
+import useAuth from "@/hooks/useAuth";
 import useCurrentUser from "@/hooks/useCurrentUser";
+
+import { logoutUser } from "@/services/authApi";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
 export default function ClientDashboardLayout({ children }) {
   const router = useRouter();
 
-  const { currentUser, loading } = useCurrentUser();
+  const { user, loading: authLoading } = useAuth();
+
+  const { currentUser, loading: currentUserLoading } = useCurrentUser();
 
   useEffect(() => {
-    if (loading) return;
+    if (authLoading || currentUserLoading) return;
 
-    if (!currentUser) {
+    if (!user) {
       router.replace("/login");
       return;
     }
 
+    if (!currentUser) return;
+
     if (currentUser.role !== "client") {
       router.replace("/");
     }
-  }, [loading, currentUser, router]);
+  }, [authLoading, currentUserLoading, user, currentUser, router]);
 
   const handleLogout = async () => {
     try {
       await authClient.signOut();
+
       await logoutUser();
 
       toast.success("Logged out successfully.");
@@ -42,15 +50,19 @@ export default function ClientDashboardLayout({ children }) {
     }
   };
 
-  if (loading) {
+  if (authLoading || currentUserLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        Loading...
+        <span className="loading loading-spinner loading-lg text-green-600"></span>
       </div>
     );
   }
 
-  if (!currentUser || currentUser.role !== "client") {
+  if (!user || !currentUser) {
+    return null;
+  }
+
+  if (currentUser.role !== "client") {
     return null;
   }
 

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { registerSchema } from "@/validations/registerSchema";
 import { createUser } from "@/services/userApi";
-
+import axiosInstance from "@/services/axiosInstance";
 import BasicFields from "./BasicFields";
 import FreelancerFields from "./FreelancerFields";
 
@@ -40,39 +40,47 @@ export default function RegisterForm() {
     try {
       await authClient.signUp.email(
         {
-          name: values.name,
-          email: values.email,
+          name: values.name.trim(),
+          email: values.email.trim(),
           password: values.password,
           callbackURL: "/",
         },
         {
           onSuccess: async () => {
             try {
-              await createUser({
-                name: values.name,
-                email: values.email,
+              const payload = {
+                name: values.name.trim(),
+                email: values.email.trim(),
                 role: values.role,
                 image: "",
+              };
 
-                skills:
-                  values.role === "freelancer"
-                    ? values.skills
-                        .split(",")
-                        .map((item) => item.trim())
-                        .filter(Boolean)
-                    : [],
+              if (values.role === "freelancer") {
+                payload.skills = values.skills
+                  .split(",")
+                  .map((item) => item.trim())
+                  .filter(Boolean);
 
-                bio: values.role === "freelancer" ? values.bio : "",
+                payload.bio = values.bio.trim();
 
-                hourlyRate:
-                  values.role === "freelancer" ? Number(values.hourlyRate) : 0,
+                payload.hourlyRate = Number(values.hourlyRate);
+              }
+
+              await createUser(payload);
+
+              await axiosInstance.post("/auth/jwt", {
+                email: payload.email,
+                role: payload.role,
               });
 
               toast.success("Account created successfully.");
 
               router.replace("/");
-            } catch {
-              toast.error("Account created but profile creation failed.");
+              router.refresh();
+            } catch (error) {
+              console.error(error);
+
+              toast.error("Profile creation failed.");
             }
           },
 
@@ -81,8 +89,10 @@ export default function RegisterForm() {
           },
         },
       );
-    } catch {
-      toast.error("Something went wrong.");
+    } catch (error) {
+      console.error(error);
+
+      toast.error("Something went wrong. Please try again.");
     }
   };
 

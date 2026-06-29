@@ -7,7 +7,10 @@ import { HiBars3, HiXMark } from "react-icons/hi2";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
+
 import useAuth from "@/hooks/useAuth";
+import useCurrentUser from "@/hooks/useCurrentUser";
+
 import { logoutUser } from "@/services/authApi";
 
 import UserAvatar from "./UserAvatar";
@@ -18,6 +21,7 @@ export default function Navbar() {
   const router = useRouter();
 
   const { user, loading } = useAuth();
+  const { currentUser, loading: currentUserLoading } = useCurrentUser();
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -36,6 +40,13 @@ export default function Navbar() {
     },
   ];
 
+  const dashboardLink =
+    currentUser?.role === "admin"
+      ? "/admin-dashboard"
+      : currentUser?.role === "freelancer"
+        ? "/freelancer-dashboard"
+        : "/client-dashboard";
+
   const handleLogout = async () => {
     try {
       await authClient.signOut();
@@ -44,7 +55,8 @@ export default function Navbar() {
 
       toast.success("Logged out successfully.");
 
-      router.push("/");
+      router.replace("/");
+
       router.refresh();
     } catch {
       toast.error("Logout failed.");
@@ -80,24 +92,36 @@ export default function Navbar() {
           </ul>
 
           <div className="hidden items-center gap-4 md:flex">
-            {loading ? (
+            {loading || currentUserLoading ? (
               <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200" />
             ) : user ? (
               <>
                 <Link
-                  href="/dashboard"
-                  className="font-medium text-gray-700 transition hover:text-green-600"
+                  href={dashboardLink}
+                  className={`font-medium transition ${
+                    pathname.startsWith(dashboardLink)
+                      ? "text-green-600"
+                      : "text-gray-700 hover:text-green-600"
+                  }`}
                 >
                   Dashboard
                 </Link>
 
-                <ProfileDropdown user={user} onLogout={handleLogout} />
+                <ProfileDropdown
+                  user={user}
+                  role={currentUser?.role}
+                  onLogout={handleLogout}
+                />
               </>
             ) : (
               <>
                 <Link
                   href="/login"
-                  className="font-medium text-gray-700 transition hover:text-green-600"
+                  className={`font-medium transition ${
+                    pathname === "/login"
+                      ? "text-green-600"
+                      : "text-gray-700 hover:text-green-600"
+                  }`}
                 >
                   Login
                 </Link>
@@ -130,7 +154,7 @@ export default function Navbar() {
                   onClick={() => setIsOpen(false)}
                   className={`block rounded-lg px-3 py-2 transition ${
                     pathname === link.href
-                      ? "bg-green-50 text-green-600"
+                      ? "bg-green-50 font-medium text-green-600"
                       : "text-gray-700 hover:bg-green-50 hover:text-green-600"
                   }`}
                 >
@@ -139,7 +163,7 @@ export default function Navbar() {
               ))}
 
               <div className="border-t border-gray-200 pt-4">
-                {loading ? (
+                {loading || currentUserLoading ? (
                   <div className="h-10 w-full animate-pulse rounded-lg bg-gray-200" />
                 ) : user ? (
                   <>
@@ -156,7 +180,7 @@ export default function Navbar() {
                     </div>
 
                     <Link
-                      href="/dashboard"
+                      href={dashboardLink}
                       onClick={() => setIsOpen(false)}
                       className="block rounded-lg px-3 py-2 text-gray-700 transition hover:bg-green-50 hover:text-green-600"
                     >

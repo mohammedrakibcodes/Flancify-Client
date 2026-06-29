@@ -25,3 +25,13 @@ export const getAllFreelancers = async ({
 
   return data;
 };
+
+export const getUserByEmail = async (email) => {
+  const { data } = await axiosInstance.get("/users/email", {
+    params: {
+      email,
+    },
+  });
+
+  return data.result;
+};

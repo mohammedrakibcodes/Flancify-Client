@@ -5,7 +5,14 @@ import { LayoutDashboard, LogOut, User } from "lucide-react";
 
 import UserAvatar from "./UserAvatar";
 
-export default function ProfileDropdown({ user, onLogout }) {
+export default function ProfileDropdown({ user, role, onLogout }) {
+  const dashboardLink =
+    role === "admin"
+      ? "/admin-dashboard"
+      : role === "freelancer"
+        ? "/freelancer-dashboard"
+        : "/client-dashboard";
+
   return (
     <div className="dropdown dropdown-end">
       <label tabIndex={0} className="cursor-pointer">
@@ -25,7 +32,7 @@ export default function ProfileDropdown({ user, onLogout }) {
         </li>
 
         <li>
-          <Link href="/dashboard">
+          <Link href={dashboardLink}>
             <LayoutDashboard size={18} />
             Dashboard
           </Link>

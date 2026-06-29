@@ -1,24 +1,18 @@
 "use client";
 
-import {
-  ClipboardList,
-  Clock3,
-  CircleCheckBig,
-  Wallet,
-  Loader2,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 
-import useClientStats from "@/hooks/useClientStats";
+import useClientDashboard from "@/hooks/useClientDashboard";
 
-import StatsCard from "@/components/dashboard/cards/StatsCard";
-import DashboardCard from "@/components/dashboard/cards/DashboardCard";
+import StatsGrid from "@/components/dashboard/client/StatsGrid";
+import RecentTasks from "@/components/dashboard/client/RecentTasks";
 
 export default function ClientDashboardPage() {
-  const { data, isLoading, isError } = useClientStats();
+  const { data: dashboard, isLoading, isError } = useClientDashboard();
 
   if (isLoading) {
     return (
-      <div className="flex h-80 items-center justify-center">
+      <div className="flex h-[70vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-green-600" />
       </div>
     );
@@ -26,55 +20,17 @@ export default function ClientDashboardPage() {
 
   if (isError) {
     return (
-      <DashboardCard>
-        <p className="text-red-600">Failed to load dashboard data.</p>
-      </DashboardCard>
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-600">
+        Failed to load dashboard.
+      </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <StatsCard
-          title="Total Tasks"
-          value={data?.totalTasks ?? 0}
-          icon={ClipboardList}
-          color="blue"
-        />
+      <StatsGrid dashboard={dashboard} />
 
-        <StatsCard
-          title="Open Tasks"
-          value={data?.openTasks ?? 0}
-          icon={Clock3}
-          color="orange"
-        />
-
-        <StatsCard
-          title="Completed"
-          value={data?.completedTasks ?? 0}
-          icon={CircleCheckBig}
-          color="green"
-        />
-
-        <StatsCard
-          title="Total Spent"
-          value={`$${data?.totalSpent ?? 0}`}
-          icon={Wallet}
-          color="purple"
-        />
-      </section>
-
-      <DashboardCard title="Recent Tasks">
-        <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-gray-300">
-          <p className="text-gray-500">Recent tasks will appear here.</p>
-        </div>
-      </DashboardCard>
-
-      <DashboardCard title="Recent Payments">
-        <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-gray-300">
-          <p className="text-gray-500">Recent payments will appear here.</p>
-        </div>
-      </DashboardCard>
+      <RecentTasks tasks={dashboard?.recentTasks || []} />
     </div>
   );
 }

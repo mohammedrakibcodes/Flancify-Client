@@ -38,10 +38,10 @@ export default function FreelancerFields({ register }) {
 
         <input
           type="number"
+          min="1"
+          step="1"
           placeholder="50"
-          {...register("hourlyRate", {
-            valueAsNumber: true,
-          })}
+          {...register("hourlyRate")}
           className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition focus:border-green-600"
         />
       </div>
