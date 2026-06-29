@@ -9,17 +9,21 @@ export const taskSchema = z.object({
 
   category: z.string().min(1, "Please select a category."),
 
-  budget: z
+  budget: z.coerce
     .number({
       error: "Budget is required.",
     })
     .positive("Budget must be greater than 0."),
 
-  deadline: z.string().min(1, "Please select a deadline."),
+  deadline: z
+    .string()
+    .min(1, "Please select a deadline.")
+    .refine((date) => new Date(date) >= new Date(new Date().toDateString()), {
+      message: "Deadline cannot be in the past.",
+    }),
 
   description: z
     .string()
     .trim()
-    .min(20, "Description must be at least 20 characters.")
-    .max(2000, "Description must not exceed 2000 characters."),
+    .min(5, "Description must be at least 5 characters."),
 });

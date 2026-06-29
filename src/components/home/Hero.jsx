@@ -46,7 +46,7 @@ export default function Hero() {
 
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           <Link
-            href="/dashboard/client/post-task"
+            href="/dashboard/client/add-task"
             className="rounded-xl bg-green-600 px-6 py-3 font-semibold text-white hover:bg-green-700 active:scale-95 active:bg-green-800 transition-all duration-150"
           >
             Post a Task

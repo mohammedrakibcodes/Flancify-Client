@@ -25,7 +25,7 @@ const menus = [
     icon: ClipboardList,
   },
   {
-    href: "/client-dashboard/post-task",
+    href: "/client-dashboard/add-task",
     title: "Post Task",
     icon: SquarePen,
   },
