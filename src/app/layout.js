@@ -1,12 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-import { Toaster } from "sonner";
-
-import Navbar from "@/components/shared/Navbar";
-import Footer from "@/components/shared/Footer";
-import QueryProvider from "@/providers/QueryProvider";
-import UserProvider from "@/providers/UserProvider";
+;
 
 const inter = Inter({
   subsets: ["latin"],
@@ -17,17 +12,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen flex flex-col">
-        <QueryProvider>
-          <UserProvider>
-            <Toaster position="top-right" richColors closeButton />
-
-            <Navbar />
-
-            <main className="flex-1">{children}</main>
-
-            <Footer />
-          </UserProvider>
-        </QueryProvider>
       </body>
     </html>
   );
